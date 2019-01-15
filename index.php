@@ -25,11 +25,11 @@
 
 
     
-    // $client = new MongoDB\Client;
+    $client = new MongoDB\Client;
     
-    // $nancydb = $client->nancydb;
+    $nancydb = $client->nancydb;
 
-    // $velos = $nancydb->createCollection('velos');
+    $velos = $nancydb->createCollection('velos');
 
     for($nbInfos = 0; $nbInfos < sizeof($json_velos->{'features'}); $nbInfos++){
 
@@ -43,14 +43,26 @@
         $tableau = [$marker_lon,$marker_lat,$marker_nom,$marker_places,$marker_capacite];
         array_push($markers, $tableau);
 
-        // $document = array( "latitude" => $marker_lat, "longitude" => $marker_lon, "nom" => $marker_nom, "places" => $marker_places, "capacite" => $marker_capacite);
-        // $velos->insert($document);
+        $document = array( "latitude" => $marker_lat, "longitude" => $marker_lon, "nom" => $marker_nom, "places" => $marker_places, "capacite" => $marker_capacite);
+        $velos->insert($document);
     }
 
     $jsonmarkers = json_encode($markers);
 
+    $batiments = $nancydb->createCollection('batiments');
+
     $cathedrale = array("nom" => "cathedrale", "latitude" => 48.684357299999995, "longitude" => 6.178623099999999, "description" => "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
     $json_cathedrale = json_encode($cathedrale);
+
+    $stSebastien = array("nom" => "Saint sebastien", "latitude" => 48.68825, "longitude" => 6.17944, "description" => "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
+    $json_stSebastien = json_encode($stSebastien);
+    
+    $IUT = array("nom" => "IUT Charlemagne", "latitude" => 48.6828361, "longitude" => 6.161133999999947, "description" => "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
+    $json_IUT = json_encode($IUT);
+
+    $batiments->insert($cathedrale);
+    $batiments->insert($stSebastien);
+    $batiments->insert($IUT);
 
 $html = <<<HTML
         <!doctype html>
@@ -74,6 +86,8 @@ $html = <<<HTML
 
             markers = {$jsonmarkers};
             cathedrale = {$json_cathedrale};
+            stseb = {$json_stSebastien}
+            iut = {$json_IUT}
 
             //coords nancy
             var xy = [{$lat}, {$lon}];
@@ -87,6 +101,10 @@ $html = <<<HTML
             }).addTo(map);
 
             L.marker([ cathedrale.latitude , cathedrale.longitude ]).addTo(map).bindPopup("<h3>" + cathedrale.nom + "</h3>");
+            
+            L.marker([ stseb.latitude , stseb.longitude ]).addTo(map).bindPopup("<h3>" + stseb.nom + "</h3>");
+            
+            L.marker([ iut.latitude , iut.longitude ]).addTo(map).bindPopup("<h3>" + iut.nom + "</h3>");
             
 
             markers.forEach(function(marker) {
