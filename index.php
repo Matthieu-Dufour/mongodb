@@ -1,5 +1,4 @@
 <?php
-
     function appel($url){
         // $opts = array('http' => array('proxy' => 'tcp://www-cache.iutnc.univ-lorraine.fr:3128/', 'request_fulluri' => true));
 
@@ -19,21 +18,18 @@
     //coords GPS de nancy
     $lat = 48.6843900;
     $lon = 6.1849600;
-
-
     $velos = appel('https://geoservices.grand-nancy.org/arcgis/rest/services/public/VOIRIE_Parking/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=nom%2Cadresse%2Cplaces%2Ccapacite&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&queryByDistance=&returnExtentsOnly=false&datumTransformation=&parameterValues=&rangeValues=&f=pjson');
 
     $json_velos = json_decode($velos);
     $markers = [];
 
 
+    
+    // $client = new MongoDB\Client;
+    
+    // $nancydb = $client->nancydb;
 
-    $client = new MongoDB\Client;
-
-    $nancydb = $client->nancydb;
-
-    $velos = $nancydb->createCollection('velos');
-
+    // $velos = $nancydb->createCollection('velos');
 
     for($nbInfos = 0; $nbInfos < sizeof($json_velos->{'features'}); $nbInfos++){
 
@@ -47,12 +43,14 @@
         $tableau = [$marker_lon,$marker_lat,$marker_nom,$marker_places,$marker_capacite];
         array_push($markers, $tableau);
 
-        $document = array( "latitude" => $marker_lat, "longitude" => $marker_lon, "nom" => $marker_nom, "places" => $marker_places, "capacite" => $marker_capacite);
-        $velos->insert($document);
+        // $document = array( "latitude" => $marker_lat, "longitude" => $marker_lon, "nom" => $marker_nom, "places" => $marker_places, "capacite" => $marker_capacite);
+        // $velos->insert($document);
     }
 
     $jsonmarkers = json_encode($markers);
 
+    $cathedrale = array("nom" => "cathedrale", "latitude" => 48.684357299999995, "longitude" => 6.178623099999999, "description" => "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
+    $json_cathedrale = json_encode($cathedrale);
 
 $html = <<<HTML
         <!doctype html>
@@ -75,6 +73,7 @@ $html = <<<HTML
         <script type="text/javascript">
 
             markers = {$jsonmarkers};
+            cathedrale = {$json_cathedrale};
 
             //coords nancy
             var xy = [{$lat}, {$lon}];
@@ -87,9 +86,12 @@ $html = <<<HTML
                 maxZoom: 20
             }).addTo(map);
 
+            L.marker([ cathedrale.latitude , cathedrale.longitude ]).addTo(map).bindPopup("<h3>" + cathedrale.nom + "</h3>");
+            
+
             markers.forEach(function(marker) {
             L.marker([ marker[1] , marker[0] ]).addTo(map).bindPopup("<h3>" + marker[2] + "</h3><br/>" + "<h3>Places : " + marker[3] + "</h3><br/>" +"<h3>Capacite : " + marker[4] + "</h3>" );
-            });
+            })
             
 
         </script>
